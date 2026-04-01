@@ -1,190 +1,174 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy & AI Lab | Geospatial Transect</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        /* --- Dark Mode Lab Theme --- */
+        :root {
+            --bg-color: #0f172a;      
+            --card-bg: #1e293b;       
+            --text-main: #f8fafc;     
+            --text-muted: #94a3b8;
+            --accent-energy: #f59e0b; 
+            --accent-ai: #06b6d4;     
+            --border-radius: 12px;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; }
+
+        .dashboard-container {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: 1fr; 
+        }
+
+        .header {
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 1px solid #334155;
+            color: white;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        
+        .header h2 { font-weight: 600; letter-spacing: 1px; }
+        .header p { color: var(--accent-ai); font-size: 0.9rem; margin-top: 4px; text-transform: uppercase; }
+
+        .kpi-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .kpi-value { font-size: 2rem; font-weight: bold; margin-top: 8px; color: var(--text-main); }
+        .kpi-value.energy { color: var(--accent-energy); }
+        .kpi-value.ai { color: var(--accent-ai); }
+        .kpi-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            border: 1px solid #334155;
+            position: relative; 
+            height: 320px; 
+            width: 100%;
+        }
+
+        /* The map container needs a very specific height to render properly */
+        #transectMap {
+            height: 400px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            border: 1px solid #334155;
+            z-index: 1; /* Keeps map controls from overlapping other elements on mobile */
+        }
+
+        /* Customizing Leaflet Popup for Dark Mode */
+        .leaflet-popup-content-wrapper { background: #1e293b; color: #f8fafc; border: 1px solid #334155; }
+        .leaflet-popup-tip { background: #1e293b; }
+        .leaflet-popup-content strong { color: var(--accent-ai); }
+
+        /* --- Desktop Layout --- */
+        @media (min-width: 768px) {
+            body { padding: 32px; }
+            
+            .dashboard-container {
+                grid-template-columns: repeat(3, 1fr); 
+            }
+
+            .header {
+                grid-column: span 3;
+                text-align: left;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .chart-card.wide { grid-column: span 2; height: 350px; }
+            .chart-card.square { grid-column: span 1; height: 350px; }
+            
+            /* Map spans the entire bottom row to show geography clearly */
+            .map-container-wrapper { grid-column: span 3; }
+        }
+    </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Energy &amp; AI Lab | Geospatial Transect&lt;/title&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"&gt;&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* --- Dark Mode Lab Theme --- */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>:root {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>--bg-color: #0f172a; <span class="Apple-converted-space">     </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>--card-bg: #1e293b;<span class="Apple-converted-space">       </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>--text-main: #f8fafc;<span class="Apple-converted-space">     </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>--text-muted: #94a3b8;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>--accent-energy: #f59e0b;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>--accent-ai: #06b6d4;<span class="Apple-converted-space">     </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>--border-radius: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>body { background-color: var(--bg-color); color: var(--text-main); padding: 16px; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.dashboard-container {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gap: 16px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>grid-template-columns: 1fr;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.header {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #334155;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: var(--border-radius);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.header h2 { font-weight: 600; letter-spacing: 1px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.header p { color: var(--accent-ai); font-size: 0.9rem; margin-top: 4px; text-transform: uppercase; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.kpi-card {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: var(--card-bg);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 24px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: var(--border-radius);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #334155;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>flex-direction: column;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.kpi-value { font-size: 2rem; font-weight: bold; margin-top: 8px; color: var(--text-main); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.kpi-value.energy { color: var(--accent-energy); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.kpi-value.ai { color: var(--accent-ai); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.kpi-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.chart-card {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: var(--card-bg);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 24px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: var(--border-radius);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #334155;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: relative;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>height: 320px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* The map container needs a very specific height to render properly */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#transectMap {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>height: 400px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: var(--border-radius);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #334155;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>z-index: 1; /* Keeps map controls from overlapping other elements on mobile */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Customizing Leaflet Popup for Dark Mode */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.leaflet-popup-content-wrapper { background: #1e293b; color: #f8fafc; border: 1px solid #334155; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.leaflet-popup-tip { background: #1e293b; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.leaflet-popup-content strong { color: var(--accent-ai); }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* --- Desktop Layout --- */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@media (min-width: 768px) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>body { padding: 32px; }</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>.dashboard-container {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>grid-template-columns: repeat(3, 1fr);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>.header {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>grid-column: span 3;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>text-align: left;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>justify-content: space-between;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>.chart-card.wide { grid-column: span 2; height: 350px; }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>.chart-card.square { grid-column: span 1; height: 350px; }</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>/* Map spans the entire bottom row to show geography clearly */</p>
-<p class="p1"><span class="Apple-converted-space">            </span>.map-container-wrapper { grid-column: span 3; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="dashboard-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2&gt;Energy &amp; AI Lab&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;Geospatial Transect Mapping&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div style="font-size: 0.9rem; color: #10b981;"&gt;● ERCOT/PJM Sync Active&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="kpi-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="kpi-label"&gt;Secured Capacity (MW)&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="kpi-value energy"&gt;450&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="kpi-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="kpi-label"&gt;Active Compute (EFLOPS)&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="kpi-value ai"&gt;12.4&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="kpi-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="kpi-label"&gt;Fleet-Wide PUE&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="kpi-value"&gt;1.18&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="map-container-wrapper"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="transectMap"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="chart-card wide"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;canvas id="energyComputeChart"&gt;&lt;/canvas&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="chart-card square"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;canvas id="transectChart"&gt;&lt;/canvas&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// --- 1. Initialize Leaflet Map ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Center the map over the US [Latitude, Longitude] with a zoom level of 4</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const map = L.map('transectMap').setView([39.8283, -98.5795], 4);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Add CartoDB Dark Matter tile layer to match the lab aesthetic</p>
-<p class="p1"><span class="Apple-converted-space">        </span>L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>attribution: '&amp;copy; &lt;a href="https://www.openstreetmap.org/copyright"&gt;OpenStreetMap&lt;/a&gt; contributors &amp;copy; &lt;a href="https://carto.com/"&gt;CARTO&lt;/a&gt;',</p>
-<p class="p1"><span class="Apple-converted-space">            </span>subdomains: 'abcd',</p>
-<p class="p1"><span class="Apple-converted-space">            </span>maxZoom: 20</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}).addTo(map);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Define a custom circle marker style</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const siteMarkerStyle = {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>radius: 8,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>fillColor: "#06b6d4", // Cyan</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: "#f59e0b", <span class="Apple-converted-space">    </span>// Amber border</p>
-<p class="p1"><span class="Apple-converted-space">            </span>weight: 2,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>opacity: 1,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>fillOpacity: 0.8</p>
-<p class="p1"><span class="Apple-converted-space">        </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Add data nodes (Transect Locations)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const sites = [</p>
-<p class="p1"><span class="Apple-converted-space">            </span>{ name: "Site Alpha (TX)", coords: [31.9686, -99.9018], mw: 120, eflops: 3.2, grid: "ERCOT" },</p>
-<p class="p1"><span class="Apple-converted-space">            </span>{ name: "Site Beta (ND)", coords: [47.5515, -101.0020], mw: 85, eflops: 2.5, grid: "MISO" },</p>
-<p class="p1"><span class="Apple-converted-space">            </span>{ name: "Site Gamma (VA)", coords: [37.4316, -78.6569], mw: 150, eflops: 4.1, grid: "PJM" },</p>
-<p class="p1"><span class="Apple-converted-space">            </span>{ name: "Site Delta (NV)", coords: [38.8026, -116.419</p>
-</body>
-</html>
+
+    <div class="dashboard-container">
+        <div class="header">
+            <div>
+                <h2>Energy & AI Lab</h2>
+                <p>Geospatial Transect Mapping</p>
+            </div>
+            <div style="font-size: 0.9rem; color: #10b981;">● ERCOT/PJM Sync Active</div>
+        </div>
+
+        <div class="kpi-card">
+            <span class="kpi-label">Secured Capacity (MW)</span>
+            <span class="kpi-value energy">450</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Active Compute (EFLOPS)</span>
+            <span class="kpi-value ai">12.4</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Fleet-Wide PUE</span>
+            <span class="kpi-value">1.18</span>
+        </div>
+
+        <div class="map-container-wrapper">
+            <div id="transectMap"></div>
+        </div>
+
+        <div class="chart-card wide">
+            <canvas id="energyComputeChart"></canvas>
+        </div>
+        
+        <div class="chart-card square">
+            <canvas id="transectChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Initialize Leaflet Map ---
+        // Center the map over the US [Latitude, Longitude] with a zoom level of 4
+        const map = L.map('transectMap').setView([39.8283, -98.5795], 4);
+
+        // Add CartoDB Dark Matter tile layer to match the lab aesthetic
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // Define a custom circle marker style
+        const siteMarkerStyle = {
+            radius: 8,
+            fillColor: "#06b6d4", // Cyan
+            color: "#f59e0b",     // Amber border
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8
+        };
+
+        // Add data nodes (Transect Locations)
+        const sites = [
+            { name: "Site Alpha (TX)", coords: [31.9686, -99.9018], mw: 120, eflops: 3.2, grid: "ERCOT" },
+            { name: "Site Beta (ND)", coords: [47.5515, -101.0020], mw: 85, eflops: 2.5, grid: "MISO" },
+            { name: "Site Gamma (VA)", coords: [37.4316, -78.6569], mw: 150, eflops: 4.1, grid: "PJM" },
+            { name: "Site Delta (NV)", coords: [38.8026, -116.419
